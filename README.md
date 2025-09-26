@@ -8,6 +8,8 @@ python --version
 pip --version  
 virtualenv --version  
 
+или
+
 python3 --version  
 pip3 --version  
 virtualenv --version  
