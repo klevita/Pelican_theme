@@ -36,7 +36,7 @@ jobs:
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
-        git add *
+        git add bootstrap2-dark
         git commit -m "Build CSS [skip ci]" || exit 0
         git push
 
