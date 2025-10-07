@@ -2,7 +2,11 @@
 
 https://www.python.org/downloads/
 
-## 2. Проверка pip и virtualenv
+## 2. Установка Node
+
+https://nodejs.org/en/download
+
+## 3. Проверка pip и virtualenv
 
 python --version  
 pip --version  
@@ -14,14 +18,14 @@ python3 --version
 pip3 --version  
 virtualenv --version  
 
-## 3. Установка virtualenv
+## 4. Установка virtualenv
 
 pip install virtualenv  
 pip3 install virtualenv  
 
 https://virtualenv.pypa.io/en/latest/installation.html
 
-## 4. Создание каталога и виртуального окружения
+## 5. Создание каталога и виртуального окружения
 
 mkdir pelican  
 cd pelican  
@@ -33,12 +37,24 @@ venv\Scripts\activate
 macOS/Linux:  
 source venv/bin/activate  
 
-## 5. Установка MkDocs
+## 6. Установка MkDocs
 
 pip install mkdocs  
 mkdocs --version
 
-## 6. Пушим изменения в репозиторий
+## 7. Установка npm пакетов
+
+npm ci
+
+## 8. Добавляем тему
+
+npm run 
+
+## 9. билд css при помощи PostCSS
+
+npm run 
+
+## 10. Пушим изменения в репозиторий
 
 git init  
 git remote add origin <URL репозитория>  
@@ -46,7 +62,7 @@ git add .
 git commit -m "Initial commit"  
 git push -u origin main
 
-## 7. Настраиваем Actions
+## 11. Настраиваем Actions
 
 На GitHub перейти во вкладку **Pages**  
 Ставим Source - **GitHub Actions**
@@ -54,7 +70,7 @@ git push -u origin main
 На GitHub перейти во вкладку **Actions**  
 Создать новый workflow
 
-## 8. Корректируем yml-файл под GitHub Pages
+## 12. Корректируем yml-файл под GitHub Pages
 
 .github/workflows/pelican.yml:
 
@@ -72,13 +88,49 @@ permissions:
   id-token: write
 
 jobs:
-  build:
+  build-css:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
       uses: actions/checkout@v4
       with:
         submodules: true
+        token: ${{ secrets.GH_TOKEN }}
+        
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        
+    - name: Install Node.js dependencies
+      run: npm ci
+        
+    - name: Build CSS with PostCSS
+      run: npm run build:css
+        
+    - name: Upload CSS artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: built-css
+        path: bootstrap2-dark/
+        retention-days: 1
+
+
+  build-python:
+    runs-on: ubuntu-latest
+    needs: build-css
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        submodules: true
+    
+    - name: Download CSS artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: built-css
+        path: bootstrap2-dark
         
     - name: Setup Python
       uses: actions/setup-python@v4
@@ -103,19 +155,19 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
-    needs: build
+    needs: build-python
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
 ```
 
-## 9. Проверяем, что все задеплоилось
+## 13. Проверяем, что все задеплоилось
 
 В разделе actions открываем последний action 
-Переходим по ссылке с последнего этапа https://klevita.github.io/Pelican_deploy/
+Переходим по ссылке с последнего этапа https://klevita.github.io/Pelican_theme/
 
-## 10. Отлаживаем
+## 14. Отлаживаем
 
 Проверяем логи Actions  
 Исправляем ошибки при сборке или деплое  
